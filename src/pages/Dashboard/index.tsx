@@ -36,8 +36,31 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     async function loadTransactions(): Promise<void> {
       const response = await api.get(`transactions`);
-      setBalance(response.data.balance);
-      setTransactions(response.data.transactions);
+
+      const fetchBalance = response.data.balance;
+      const fetchTransaction = response.data.transactions;
+
+      const balanceFormatted = {
+        income: formatValue(fetchBalance.income),
+        outcome: formatValue(fetchBalance.outcome),
+        total: formatValue(fetchBalance.total),
+      };
+
+      const transactionsFormatted = fetchTransaction.map(
+        (transaction: Transaction) => ({
+          ...transaction,
+          formattedValue:
+            transaction.type === 'outcome'
+              ? ` - ${formatValue(transaction.value)}`
+              : formatValue(transaction.value),
+          formattedDate: new Date(transaction.created_at).toLocaleDateString(
+            'pt-br',
+          ),
+        }),
+      );
+
+      setBalance(balanceFormatted);
+      setTransactions(transactionsFormatted);
     }
 
     loadTransactions();
@@ -83,14 +106,23 @@ const Dashboard: React.FC = () => {
             </thead>
 
             <tbody>
-              {transactions.map(transaction => (
-                <tr>
-                  <td className="title">{transaction.title}</td>
-                  <td className="income">{transaction.value}</td>
-                  <td>{transaction.category.title}</td>
-                  <td>{transaction.created_at}</td>
-                </tr>
-              ))}
+              {transactions.map(
+                ({
+                  id,
+                  title,
+                  type,
+                  formattedValue,
+                  formattedDate,
+                  category,
+                }) => (
+                  <tr key={id}>
+                    <td className="title">{title}</td>
+                    <td className={type}>{formattedValue}</td>
+                    <td>{category.title}</td>
+                    <td>{formattedDate}</td>
+                  </tr>
+                ),
+              )}
             </tbody>
           </table>
         </TableContainer>
