@@ -1,7 +1,12 @@
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 
 interface ContainerProps {
   size?: 'small' | 'large';
+}
+
+interface LinkProps {
+  isSelected: boolean;
 }
 
 export const Container = styled.div<ContainerProps>`
@@ -33,4 +38,8 @@ export const Container = styled.div<ContainerProps>`
       }
     }
   }
+`;
+
+export const NavItem = styled(Link)<LinkProps>`
+  border-bottom: 2px #ff872c solid;
 `;
